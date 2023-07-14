@@ -1,5 +1,6 @@
 {
     "require": {
+        "sagittaracc/container": "@dev"
     },
     "autoload": {
         "psr-4": {

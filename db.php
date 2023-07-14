@@ -1,7 +1,7 @@
 <?php
 
 use Sagittaracc\AnyValue;
-use Sagittaracc\Container;
+use Sagittaracc\Container\Container;
 use Sagittaracc\Query;
 
 require 'vendor/autoload.php';

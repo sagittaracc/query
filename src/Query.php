@@ -3,6 +3,7 @@
 namespace Sagittaracc;
 
 use Closure;
+use Sagittaracc\Container\Container;
 
 class Query
 {
