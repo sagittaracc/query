@@ -18,24 +18,19 @@ $container->configure([
 $db = Query::use('my-db');
 
 $query =
-    $db->prepare(
-        'SELECT
-            *
-        FROM `groups`
-        WHERE
-            `name` = :name'
-    )
+    $db
+    ->prepare('SELECT * FROM `groups` WHERE `name` = :name')
     ->columns([
         'users' => function($model, $db) {
             return
                 $db
-                    ->prepare('SELECT * FROM users where group_id = :id')
-                    ->columns([
-                        'age' => function($model) {
-                            return "$model->age years old";
-                        }
-                    ])
-                    ->all(['id' => $model->id]);
+                ->prepare('SELECT * FROM users where group_id = :id')
+                ->columns([
+                    'age' => function($model) {
+                        return "$model->age years old";
+                    }
+                ])
+                ->all(['id' => $model->id]);
         }
     ]);
 
