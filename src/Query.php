@@ -48,9 +48,11 @@ class Query
         $this->query->debugDumpParams();
         $this->rawDumpQueries[] = ob_get_clean();
         $data = $this->query->fetchAll(\PDO::FETCH_CLASS);
+        // Может лучше сделать $clone = clone $this?
+        $select = $this->select;
 
         foreach ($data as $model) {
-            foreach ($this->select as $column => $option) {
+            foreach ($select as $column => $option) {
                 if ($option instanceof Closure) {
                     $model->{$column} = $option($model, $this);
                 }
@@ -63,6 +65,6 @@ class Query
     public function one($params = [])
     {
         $data = $this->all($params);
-        return reset($data);
+        return count($data) === 1 ? reset($data): null;
     }
 }
