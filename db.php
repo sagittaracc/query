@@ -8,7 +8,12 @@ require 'vendor/autoload.php';
 
 $container = Container::getInstance();
 $container->configure([
-    ...require __DIR__ . '/src/config/db.php'
+    'connections' => [
+        'resurs' => [
+            'class' => PDO::class,
+            'constructor' => ["mysql:dbname=go_db;host=127.0.0.1", 'root', ''],
+        ]
+    ]
 ]);
 
 $db = Query::use('resurs');
@@ -16,42 +21,19 @@ $db = Query::use('resurs');
 $query =
     $db->prepare(
         'SELECT
-            `c`.`Obj_Id_Counter`,
-            `c`.`Name`,
-            `c`.`SerialNumber`,
-            `c`.`Battery`,
-            `c`.`PreviousVerification`,
-            `r`.`Name_Resurs`
-        FROM counter c
-        JOIN resurs r ON r.id_Resurs = c.Id_Resurs
+            *
+        FROM `users`
         WHERE
-            Obj_Id_User = :user_id
-        AND Obj_Id_Counter = :counter_id'
+            `name` = :name
+        AND `age` = :age'
     )
     ->columns([
-        'Name' => function($model) {
-            if (!is_null($model->Name) && !is_null($model->SerialNumber) && $model->Name !== '' && $model->SerialNumber !== '') {
-                return "$model->Name ($model->SerialNumber)";
-            }
-            else if (!is_null($model->Name) && $model->Name !== '') {
-                return $model->Name;
-            }
-            else {
-                return $model->SerialNumber;
-            }
+        'age' => function($model) {
+            return $model->age . ' ' . ($model->age === 1 ? 'year old' : 'years old');
         },
-        'Battery' => function($model) {
-            return is_null($model->Battery) ? '' : "$model->Battery В";
-        },
-        'PreviousVerification' => function($model) {
-            if (!is_null($model->PreviousVerification)) {
-                $date = date_create($model->PreviousVerification);
-                return date_format($date, 'd.m.Y');
-            }
-        }
     ]);
 
-$counterList = $query->execute(['user_id' => 266, 'counter_id' => new AnyValue]);
+$userList = $query->execute(['name' => 'Alex', 'age' => new AnyValue]);
 
 echo $query->rawQuery;
-var_dump($counterList);
+var_dump($userList);

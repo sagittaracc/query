@@ -5,7 +5,6 @@ namespace Sagittaracc;
 class Container
 {
     protected static $instance;
-    protected $connections;
     protected $config;
 
     public function __construct()
@@ -28,27 +27,20 @@ class Container
         return self::$instance;
     }
 
-    public function addConnection($name)
-    {
-        $config = $this->config['connections'][$name];
-        $this->connections["{$config['driver']}:{$config['host']}:{$config['name']}"]
-            = new \PDO(
-                "{$config['driver']}:dbname={$config['name']};host={$config['host']}",
-                $config['user'],
-                $config['pass']
-            );
-    }
-
-    public function getConnection($name)
-    {
-        $config = $this->config['connections'][$name];
-        return $this->connections["{$config['driver']}:{$config['host']}:{$config['name']}"];
-    }
-
     public function configure($config)
     {
         $this->config = $config;
-        foreach ($config['connections'] as $mainConnection => $connections) break;
-        $this->addConnection($mainConnection);
+    }
+
+    public function get($path)
+    {
+        $config = $this->config;
+
+        $path = explode('.', $path);
+        foreach ($path as $key) {
+            $config = $config[$key];
+        }
+
+        return new $config['class'](...$config['constructor']);
     }
 }

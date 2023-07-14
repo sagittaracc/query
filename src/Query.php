@@ -35,12 +35,12 @@ class Query
     {
         foreach ($params as $param => $value) {
             if ($value instanceof AnyValue) {
-                $this->sql = preg_replace('/\w+\s*=\s*:'.$param.'/', true, $this->sql);
+                $this->sql = preg_replace('/`?\w+`?\s*=\s*:'.$param.'/', true, $this->sql);
                 unset($params[$param]);
             }
         }
 
-        $this->query = Container::getInstance()->getConnection($this->db)->prepare($this->sql);
+        $this->query = Container::getInstance()->get("connections.$this->db")->prepare($this->sql);
         $this->query->execute($params);
         $this->rawQuery = $this->query->debugDumpParams();
         $data = $this->query->fetchAll(\PDO::FETCH_CLASS);
