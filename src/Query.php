@@ -9,8 +9,8 @@ class Query
     protected $db;
     protected $query;
     protected $sql;
-    protected $select;
-    public $rawQuery;
+    protected $select = [];
+    public $rawDumpQueries = [];
 
     public static function use($db)
     {
@@ -22,6 +22,7 @@ class Query
     public function prepare($sql)
     {
         $this->sql = $sql;
+        $this->columns([]);
         return $this;
     }
 
@@ -31,7 +32,7 @@ class Query
         return $this;
     }
 
-    public function execute($params = [])
+    public function all($params = [])
     {
         foreach ($params as $param => $value) {
             if ($value instanceof AnyValue) {
@@ -42,17 +43,25 @@ class Query
 
         $this->query = Container::getInstance()->get("connections.$this->db")->prepare($this->sql);
         $this->query->execute($params);
-        $this->rawQuery = $this->query->debugDumpParams();
+        ob_start();
+        $this->query->debugDumpParams();
+        $this->rawDumpQueries[] = ob_get_clean();
         $data = $this->query->fetchAll(\PDO::FETCH_CLASS);
 
         foreach ($data as $model) {
             foreach ($this->select as $column => $option) {
                 if ($option instanceof Closure) {
-                    $model->{$column} = $option($model);
+                    $model->{$column} = $option($model, $this);
                 }
             }
         }
 
         return $data;
+    }
+
+    public function one($params = [])
+    {
+        $data = $this->all($params);
+        return reset($data);
     }
 }
