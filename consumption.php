@@ -31,8 +31,7 @@ $cons =
             `consumption`,
             `date`
         FROM consumption
-        WHERE counter = :counter AND (`date` = :from OR `date` = :to)
-        ORDER BY `date`, `tariff`, `tariff_number`'
+        WHERE counter = :counter AND (`date` = :from OR `date` = :to)'
     )
     ->group(function($model) {
         return [$model->tariff, $model->tariff_number];
