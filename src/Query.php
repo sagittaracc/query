@@ -8,6 +8,7 @@ use Sagittaracc\Value\Any;
 
 class Query
 {
+    protected $connection;
     protected $db;
     protected $query;
     protected $sql;
@@ -18,6 +19,7 @@ class Query
     {
         $instance = new self;
         $instance->db = $db;
+        $instance->connection = Container::getInstance()->get("connections.$db");
         return $instance;
     }
 
@@ -44,7 +46,7 @@ class Query
 
     public function all($params = [])
     {
-        $this->query = Container::getInstance()->get("connections.$this->db")->prepare($this->sql);
+        $this->query = $this->connection->prepare($this->sql);
         $this->query->execute($params);
         ob_start();
         $this->query->debugDumpParams();
