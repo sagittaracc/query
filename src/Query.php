@@ -5,6 +5,7 @@ namespace Sagittaracc;
 use Closure;
 use Sagittaracc\Container\Container;
 use Sagittaracc\Value\Any;
+use stdClass;
 
 class Query
 {
@@ -14,6 +15,7 @@ class Query
     protected $sql;
     protected $select = [];
     protected $indexClosure = null;
+    protected $group;
     public $rawDumpQueries = [];
 
     public static function use($db)
@@ -46,9 +48,16 @@ class Query
         return $this;
     }
 
-    public function index(?Closure $closure)
+    public function index(?Closure $closure, bool $group = false)
     {
         $this->indexClosure = $closure;
+        $this->group = $group;
+        return $this;
+    }
+
+    public function group(Closure $closure)
+    {
+        $this->index($closure, true);
         return $this;
     }
 
@@ -67,18 +76,34 @@ class Query
             foreach ($data as $index => $model) {
                 $idx = $clone->indexClosure;
                 $newIdx = $idx($model);
-                $indexed[$newIdx] = $model;
+                if ($clone->group) {
+                    if (!isset($indexed[$newIdx])) {
+                        $indexed[$newIdx] = [];
+                    }
+                    $indexed[$newIdx][] = $model;
+                }
+                else {
+                    $indexed[$newIdx] = $model;
+                }
             }
             $data = $indexed;
         }
 
-        foreach ($data as $model) {
+        foreach ($data as &$model) {
             foreach ($clone->select as $column => $option) {
                 if ($option instanceof Closure) {
-                    $model->{$column} = $option($model, $this, $data);
+                    if ($model instanceof stdClass) {
+                        $model->{$column} = $option($model, $this, $data);
+                    }
+                    else if (is_array($model)) {
+                        $model[$column] = $option($model, $this, $data);
+                    }
+                    else {
+                    }
                 }
             }
         }
+        unset($model);
 
         return $data;
     }
