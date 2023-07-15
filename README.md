@@ -35,6 +35,9 @@ $query =
                         return "$user->age years old";
                     }
                 ])
+                ->index(function($user) {
+                    return $user->id;
+                })
                 ->all(['id' => $group->id]);
         }
     ]);
@@ -53,7 +56,7 @@ stdClass Object
     [name] => admin
     [users] => Array
         (
-            [0] => stdClass Object
+            [1] => stdClass Object
                 (
                     [id] => 1
                     [name] => Alex
@@ -61,7 +64,7 @@ stdClass Object
                     [group_id] => 1
                 )
 
-            [1] => stdClass Object
+            [4] => stdClass Object
                 (
                     [id] => 4
                     [name] => John

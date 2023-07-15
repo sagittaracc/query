@@ -34,6 +34,9 @@ $query =
                         return "$user->age years old";
                     }
                 ])
+                ->index(function($user) {
+                    return $user->id;
+                })
                 ->all(['id' => $group->id]);
         }
     ]);

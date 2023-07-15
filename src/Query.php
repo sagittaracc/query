@@ -13,6 +13,7 @@ class Query
     protected $query;
     protected $sql;
     protected $select = [];
+    protected $indexClosure = null;
     public $rawDumpQueries = [];
 
     public static function use($db)
@@ -27,6 +28,7 @@ class Query
     {
         $this->sql = $sql;
         $this->columns([]);
+        $this->index(null);
         return $this;
     }
 
@@ -44,6 +46,12 @@ class Query
         return $this;
     }
 
+    public function index(?Closure $closure)
+    {
+        $this->indexClosure = $closure;
+        return $this;
+    }
+
     public function all($params = [])
     {
         $this->query = $this->connection->prepare($this->sql);
@@ -52,15 +60,24 @@ class Query
         $this->query->debugDumpParams();
         $this->rawDumpQueries[] = ob_get_clean();
         $data = $this->query->fetchAll(\PDO::FETCH_CLASS);
-        // Может лучше сделать $clone = clone $this?
-        $select = $this->select;
+        $clone = clone $this;
 
-        foreach ($data as $model) {
-            foreach ($select as $column => $option) {
+        foreach ($data as $index => $model) {
+            foreach ($clone->select as $column => $option) {
                 if ($option instanceof Closure) {
                     $model->{$column} = $option($model, $this);
                 }
             }
+        }
+
+        if ($clone->indexClosure instanceof Closure) {
+            $indexed = [];
+            foreach ($data as $index => $model) {
+                $idx = $clone->indexClosure;
+                $newIdx = $idx($model);
+                $indexed[$newIdx] = $model;
+            }
+            $data = $indexed;
         }
 
         return $data;
