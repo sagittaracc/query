@@ -1,6 +1,7 @@
 {
     "require": {
-        "sagittaracc/container": "@dev"
+        "sagittaracc/container": "@dev",
+        "sagittaracc/arrays": "^0.1.5"
     },
     "autoload": {
         "psr-4": {

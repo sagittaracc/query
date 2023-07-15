@@ -4,8 +4,38 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8828c8d9dd2e97bdfb17fcc153edd75f",
+    "content-hash": "696dcdca8d58a480ecbd9a2496d05dd4",
     "packages": [
+        {
+            "name": "sagittaracc/arrays",
+            "version": "v0.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sagittaracc/arrays.git",
+                "reference": "421d53a0aaede87e6818730ee1d41179df621e52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sagittaracc/arrays/zipball/421d53a0aaede87e6818730ee1d41179df621e52",
+                "reference": "421d53a0aaede87e6818730ee1d41179df621e52",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "support": {
+                "issues": "https://github.com/sagittaracc/arrays/issues",
+                "source": "https://github.com/sagittaracc/arrays/tree/v0.1.5"
+            },
+            "time": "2023-07-15T19:37:47+00:00"
+        },
         {
             "name": "sagittaracc/container",
             "version": "dev-main",

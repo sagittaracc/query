@@ -18,7 +18,7 @@ $container->configure([
 $db = Query::use('my-db');
 
 $from = '2023-07-10';
-$to = '2023-07-13';
+$to = '2023-07-12';
 $counter = 1;
 
 $cons =
@@ -35,23 +35,24 @@ $cons =
         ORDER BY `date`, `tariff`, `tariff_number`'
     )
     ->group(function($model) {
-        return $model->date;
+        return [$model->tariff, $model->tariff_number];
     })
     ->all(['counter' => $counter, 'from' => $from, 'to' => $to]);
 
-$beginCons = $cons[$from];
-$endCons = $cons[$to];
-
-foreach ($beginCons as $i => $row) {
-    print_r([
-        'counter' => $counter,
-        'from' => $from,
-        'to' => $to,
-        'tarif' => $row->tariff,
-        'number' => $row->tariff_number,
-        'total' => 
-            isset($endCons[$i]->consumption)
-                ? $endCons[$i]->consumption - $beginCons[$i]->consumption
-                : null,
-    ]);
+foreach ($cons as $tariff => $tariffData)
+{
+    foreach ($tariffData as $tariff_number => $consData)
+    {
+        print_r([
+            'counter' => $counter,
+            'from' => $from,
+            'to' => $to,
+            'tariff' => $tariff,
+            'tariff_number' => $tariff_number,
+            'total' =>
+                isset($consData[1])
+                    ? $consData[1]->consumption - $consData[0]->consumption
+                    : null,
+        ]);
+    }
 }

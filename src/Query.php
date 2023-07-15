@@ -3,6 +3,7 @@
 namespace Sagittaracc;
 
 use Closure;
+use sagittaracc\ArrayHelper;
 use Sagittaracc\Container\Container;
 use Sagittaracc\Value\Any;
 use stdClass;
@@ -72,21 +73,7 @@ class Query
         $clone = clone $this;
 
         if ($clone->indexClosure instanceof Closure) {
-            $indexed = [];
-            foreach ($data as $index => $model) {
-                $idx = $clone->indexClosure;
-                $newIdx = $idx($model);
-                if ($clone->group) {
-                    if (!isset($indexed[$newIdx])) {
-                        $indexed[$newIdx] = [];
-                    }
-                    $indexed[$newIdx][] = $model;
-                }
-                else {
-                    $indexed[$newIdx] = $model;
-                }
-            }
-            $data = $indexed;
+            $data = ArrayHelper::index($clone->indexClosure, $data, $clone->group);
         }
 
         foreach ($data as &$model) {
