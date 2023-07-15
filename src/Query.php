@@ -92,14 +92,7 @@ class Query
         foreach ($data as &$model) {
             foreach ($clone->select as $column => $option) {
                 if ($option instanceof Closure) {
-                    if ($model instanceof stdClass) {
-                        $model->{$column} = $option($model, $this, $data);
-                    }
-                    else if (is_array($model)) {
-                        $model[$column] = $option($model, $this, $data);
-                    }
-                    else {
-                    }
+                    $model->{$column} = $option($model, $this, $data);
                 }
             }
         }

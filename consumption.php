@@ -25,21 +25,33 @@ $cons =
     $db
     ->prepare(
         'SELECT
-            *
+            `counter`,
+            `tariff`,
+            `tariff_number`,
+            `consumption`,
+            `date`
         FROM consumption
         WHERE counter = :counter AND (`date` = :from OR `date` = :to)
-        ORDER BY `date` ASC'
+        ORDER BY `date`, `tariff`, `tariff_number`'
     )
     ->group(function($model) {
-        return "$model->tariff.$model->tariff_number";
+        return $model->date;
     })
-    ->columns([
-        'total' => function($model) {
-            return
-                isset($model[1]->consumption)
-                    ? $model[1]->consumption - $model[0]->consumption
-                    : null;
-        }
-    ])
     ->all(['counter' => $counter, 'from' => $from, 'to' => $to]);
-print_r($cons);
+
+$beginCons = $cons[$from];
+$endCons = $cons[$to];
+
+foreach ($beginCons as $i => $row) {
+    print_r([
+        'counter' => $counter,
+        'from' => $from,
+        'to' => $to,
+        'tarif' => $row->tariff,
+        'number' => $row->tariff_number,
+        'total' => 
+            isset($endCons[$i]->consumption)
+                ? $endCons[$i]->consumption - $beginCons[$i]->consumption
+                : null,
+    ]);
+}
