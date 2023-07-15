@@ -29,17 +29,20 @@ $query =
                 ->filter([
                     'age' => new Any
                 ])
+                ->index(function($user) {
+                    return $user->id;
+                })
                 ->columns([
                     'underage' => function($user) {
                         return $user->age < 18;
                     },
                     'canDrink' => function($user) {
                         return $user->underage ? 'no' : 'yes';
-                    }
+                    },
+                    'parent' => function($user, $db, $data) {
+                        return $data[$user->parent_id] ?? null;
+                    },
                 ])
-                ->index(function($user) {
-                    return $user->id;
-                })
                 ->all(['id' => $group->id]);
         }
     ]);

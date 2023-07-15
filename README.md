@@ -30,17 +30,20 @@ $query =
                 ->filter([
                     'age' => new Any
                 ])
+                ->index(function($user) {
+                    return $user->id;
+                })
                 ->columns([
                     'underage' => function($user) {
                         return $user->age < 18;
                     },
                     'canDrink' => function($user) {
                         return $user->underage ? 'no' : 'yes';
-                    }
+                    },
+                    'parent' => function($user, $db, $data) {
+                        return $data[$user->parent_id] ?? null;
+                    },
                 ])
-                ->index(function($user) {
-                    return $user->id;
-                })
                 ->all(['id' => $group->id]);
         }
     ]);
@@ -65,18 +68,31 @@ stdClass Object
                     [name] => Alex
                     [age] => 5
                     [group_id] => 1
+                    [parent_id] => 4
                     [underage] => 1
                     [canDrink] => no
+                    [parent] => stdClass Object
+                        (
+                            [id] => 4
+                            [name] => John
+                            [age] => 30
+                            [group_id] => 1
+                            [parent_id] =>
+                            [underage] =>
+                            [canDrink] => yes
+                            [parent] =>
+                        )
                 )
-
             [4] => stdClass Object
                 (
                     [id] => 4
                     [name] => John
                     [age] => 30
                     [group_id] => 1
+                    [parent_id] =>
                     [underage] =>
                     [canDrink] => yes
+                    [parent] =>
                 )
         )
 )

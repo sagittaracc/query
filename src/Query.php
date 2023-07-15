@@ -75,7 +75,7 @@ class Query
         foreach ($data as $model) {
             foreach ($clone->select as $column => $option) {
                 if ($option instanceof Closure) {
-                    $model->{$column} = $option($model, $this);
+                    $model->{$column} = $option($model, $this, $data);
                 }
             }
         }
