@@ -22,7 +22,7 @@ $query =
     $db
     ->prepare('SELECT * FROM `groups` WHERE `name` = :name')
     ->columns([
-        'users' => function($model, $db) {
+        'users' => function($group, $db) {
             return
                 $db
                 ->prepare('SELECT * FROM users where group_id = :id')
@@ -30,15 +30,15 @@ $query =
                     'age' => new Any
                 ])
                 ->columns([
-                    'age' => function($model) {
-                        return "$model->age years old";
+                    'age' => function($user) {
+                        return "$user->age years old";
                     }
                 ])
-                ->all(['id' => $model->id]);
+                ->all(['id' => $group->id]);
         }
     ]);
 
-$users = $query->one(['name' => 'admin']);
+$data = $query->one(['name' => 'admin']);
 
-// var_dump($query->rawDumpQueries);
-print_r($users);
+var_dump($query->rawDumpQueries);
+print_r($data);
