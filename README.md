@@ -31,8 +31,11 @@ $query =
                     'age' => new Any
                 ])
                 ->columns([
-                    'age' => function($user) {
-                        return "$user->age years old";
+                    'underage' => function($user) {
+                        return $user->age < 18;
+                    },
+                    'canDrink' => function($user) {
+                        return $user->underage ? 'no' : 'yes';
                     }
                 ])
                 ->index(function($user) {
@@ -60,20 +63,22 @@ stdClass Object
                 (
                     [id] => 1
                     [name] => Alex
-                    [age] => 5 years old
+                    [age] => 5
                     [group_id] => 1
+                    [underage] => 1
+                    [canDrink] => no
                 )
 
             [4] => stdClass Object
                 (
                     [id] => 4
                     [name] => John
-                    [age] => 30 years old
+                    [age] => 30
                     [group_id] => 1
+                    [underage] =>
+                    [canDrink] => yes
                 )
-
         )
-
 )
 ```
 

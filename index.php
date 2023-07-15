@@ -30,8 +30,11 @@ $query =
                     'age' => new Any
                 ])
                 ->columns([
-                    'age' => function($user) {
-                        return "$user->age years old";
+                    'underage' => function($user) {
+                        return $user->age < 18;
+                    },
+                    'canDrink' => function($user) {
+                        return $user->underage ? 'no' : 'yes';
                     }
                 ])
                 ->index(function($user) {
