@@ -35,13 +35,6 @@ class Query
 
     public function all($params = [])
     {
-        foreach ($params as $param => $value) {
-            if ($value instanceof AnyValue) {
-                $this->sql = preg_replace('/`?\w+`?\s*=\s*:'.$param.'/', true, $this->sql);
-                unset($params[$param]);
-            }
-        }
-
         $this->query = Container::getInstance()->get("connections.$this->db")->prepare($this->sql);
         $this->query->execute($params);
         ob_start();
