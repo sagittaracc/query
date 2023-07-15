@@ -62,14 +62,6 @@ class Query
         $data = $this->query->fetchAll(\PDO::FETCH_CLASS);
         $clone = clone $this;
 
-        foreach ($data as $index => $model) {
-            foreach ($clone->select as $column => $option) {
-                if ($option instanceof Closure) {
-                    $model->{$column} = $option($model, $this);
-                }
-            }
-        }
-
         if ($clone->indexClosure instanceof Closure) {
             $indexed = [];
             foreach ($data as $index => $model) {
@@ -78,6 +70,14 @@ class Query
                 $indexed[$newIdx] = $model;
             }
             $data = $indexed;
+        }
+
+        foreach ($data as $model) {
+            foreach ($clone->select as $column => $option) {
+                if ($option instanceof Closure) {
+                    $model->{$column} = $option($model, $this);
+                }
+            }
         }
 
         return $data;
