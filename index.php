@@ -2,6 +2,7 @@
 
 use Sagittaracc\Container\Container;
 use Sagittaracc\Query;
+use Sagittaracc\Value\Any;
 
 require 'vendor/autoload.php';
 
@@ -25,6 +26,9 @@ $query =
             return
                 $db
                 ->prepare('SELECT * FROM users where group_id = :id')
+                ->filter([
+                    'age' => new Any
+                ])
                 ->columns([
                     'age' => function($model) {
                         return "$model->age years old";

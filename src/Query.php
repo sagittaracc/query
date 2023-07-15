@@ -4,6 +4,7 @@ namespace Sagittaracc;
 
 use Closure;
 use Sagittaracc\Container\Container;
+use Sagittaracc\Value\Any;
 
 class Query
 {
@@ -24,6 +25,14 @@ class Query
     {
         $this->sql = $sql;
         $this->columns([]);
+        return $this;
+    }
+
+    public function filter($filter)
+    {
+        foreach ($filter as $param => $value) {
+            if ($value instanceof Any) continue;
+        }
         return $this;
     }
 
