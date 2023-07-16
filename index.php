@@ -20,12 +20,12 @@ $db = Query::use('my-db');
 
 $query =
     $db
-    ->prepare('SELECT * FROM `groups` WHERE `name` = :name')
+    ->query('SELECT * FROM `groups` WHERE `name` = :name')
     ->columns([
         'users' => function($group, $db) {
             return
                 $db
-                ->prepare('SELECT * FROM users where group_id = :id')
+                ->query('SELECT * FROM users where group_id = :id')
                 ->filter([
                     'age' => new Any
                 ])

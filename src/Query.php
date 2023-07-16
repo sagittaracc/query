@@ -27,7 +27,7 @@ class Query
         return $instance;
     }
 
-    public function prepare($sql)
+    public function query($sql)
     {
         $this->sql = $sql;
         $this->columns([]);

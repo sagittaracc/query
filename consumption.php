@@ -23,7 +23,7 @@ $counter = 1;
 
 $cons =
     $db
-    ->prepare(
+    ->query(
         'SELECT
             `counter`,
             `tariff`,

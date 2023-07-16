@@ -19,7 +19,7 @@ $db = Query::use('my-db');
 
 $lastCons =
     $db
-    ->prepare(
+    ->query(
         'SELECT
             `con`.*
         FROM `consumption` `con`
@@ -43,7 +43,7 @@ $lastCons =
 
 $counters =
     $db
-    ->prepare(
+    ->query(
         'SELECT * FROM counter'
     )
     ->columns([
