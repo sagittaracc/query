@@ -36,20 +36,14 @@ $lastCons =
             `con`.`tariff_number` = `last_con`.`tariff_number` AND
             `con`.`date` = `last_con`.`date`'
     )
-    ->group(function($model) {
-        return [$model->counter];
-    })
+    ->group(fn($model) => [$model->counter])
     ->all();
 
 $counters =
     $db
-    ->query(
-        'SELECT * FROM counter'
-    )
+    ->query('SELECT * FROM counter')
     ->columns([
-        'last_consumption' => function($counter) use ($lastCons) {
-            return $lastCons[$counter->id];
-        },
+        'last_consumption' => fn($counter) => $lastCons[$counter->id],
     ])
     ->all();
 

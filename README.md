@@ -21,28 +21,17 @@ $db = Query::use('my-db');
 
 $query =
     $db
-    ->prepare('SELECT * FROM `groups` WHERE `name` = :name')
+    ->query('SELECT * FROM `groups` WHERE `name` = :name')
     ->columns([
         'users' => function($group, $db) {
             return
                 $db
-                ->prepare('SELECT * FROM users where group_id = :id')
-                ->filter([
-                    'age' => new Any
-                ])
-                ->index(function($user) {
-                    return $user->id;
-                })
+                ->query('SELECT * FROM users where group_id = :id')
+                ->index(fn($user) => $user->id)
                 ->columns([
-                    'underage' => function($user) {
-                        return $user->age < 18;
-                    },
-                    'canDrink' => function($user) {
-                        return $user->underage ? 'no' : 'yes';
-                    },
-                    'parent' => function($user, $db, $data) {
-                        return $data[$user->parent_id] ?? null;
-                    },
+                    'underage' => fn($user) => $user->age < 18,
+                    'canDrink' => fn($user) => $user->underage ? 'no' : 'yes',
+                    'parent' => fn($user, $db, $data) => $data[$user->parent_id] ?? null,
                 ])
                 ->all(['id' => $group->id]);
         }

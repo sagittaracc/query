@@ -34,9 +34,7 @@ $cons =
         WHERE counter = :counter AND (`date` = :from OR `date` = :to)
         ORDER BY `date`'
     )
-    ->group(function($model) {
-        return [$model->tariff, $model->tariff_number];
-    })
+    ->group(fn($model) => [$model->tariff, $model->tariff_number])
     ->all(['counter' => $counter, 'from' => $from, 'to' => $to]);
 
 foreach ($cons as $tariff => $tariffData)
