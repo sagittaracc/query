@@ -13,26 +13,35 @@ class Query
     protected $db;
     protected $query;
     protected $sql;
-    protected $select = [];
-    protected $indexClosure = null;
+    protected $select;
+    protected $indexClosure;
     protected $group;
-    public $rawDumpQueries = [];
-    private $queue = [];
+
+    private $queue;
+
+    public $rawDumpQueries;
 
     public static function use($db)
     {
         $instance = new self;
+        $instance->flush();
         $instance->db = $db;
         $instance->connection = Container::getInstance()->get("connections.$db");
         return $instance;
     }
 
+    public function flush()
+    {
+        $this->columns([]);
+        $this->index(null);
+        $this->rawDumpQueries = [];
+        $this->queue = [];
+    }
+
     public function query($sql)
     {
         $this->sql = $sql;
-        $this->columns([]);
-        $this->index(null);
-        $this->queue = [];
+        $this->flush();
         return $this;
     }
 
