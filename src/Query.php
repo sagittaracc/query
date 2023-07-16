@@ -6,7 +6,6 @@ use Closure;
 use sagittaracc\ArrayHelper;
 use Sagittaracc\Container\Container;
 use Sagittaracc\Value\Any;
-use stdClass;
 
 class Query
 {
@@ -18,6 +17,7 @@ class Query
     protected $indexClosure = null;
     protected $group;
     public $rawDumpQueries = [];
+    private $queue = [];
 
     public static function use($db)
     {
@@ -32,6 +32,7 @@ class Query
         $this->sql = $sql;
         $this->columns([]);
         $this->index(null);
+        $this->queue = [];
         return $this;
     }
 
@@ -45,12 +46,14 @@ class Query
 
     public function columns($select)
     {
+        $this->queue[] = '_columns';
         $this->select = $select;
         return $this;
     }
 
     public function index(?Closure $closure, bool $group = false)
     {
+        $this->queue[] = '_index';
         $this->indexClosure = $closure;
         $this->group = $group;
         return $this;
@@ -62,19 +65,20 @@ class Query
         return $this;
     }
 
-    public function all($params = [])
+    private function _index($data)
     {
-        $this->query = $this->connection->prepare($this->sql);
-        $this->query->execute($params);
-        ob_start();
-        $this->query->debugDumpParams();
-        $this->rawDumpQueries[] = ob_get_clean();
-        $data = $this->query->fetchAll(\PDO::FETCH_CLASS);
         $clone = clone $this;
 
         if ($clone->indexClosure instanceof Closure) {
             $data = ArrayHelper::index($clone->indexClosure, $data, $clone->group);
         }
+
+        return $data;
+    }
+
+    private function _columns($data)
+    {
+        $clone = clone $this;
 
         foreach ($data as &$model) {
             foreach ($clone->select as $column => $option) {
@@ -84,6 +88,32 @@ class Query
             }
         }
         unset($model);
+
+        return $data;
+    }
+
+    private function dumpQueries()
+    {
+        ob_start();
+        $this->query->debugDumpParams();
+        $this->rawDumpQueries[] = ob_get_clean();
+    }
+
+    public function all($params = [])
+    {
+        $this->query = $this->connection->prepare($this->sql);
+        $this->query->execute($params);
+
+        $this->dumpQueries();
+
+        $data = $this->query->fetchAll(\PDO::FETCH_CLASS);
+
+        // Методы index, column, ... выполняем в порядке их установки в запросе
+        foreach ($this->queue as $method) {
+            if (method_exists($this, $method)) {
+                $data = $this->$method($data);
+            }
+        }
 
         return $data;
     }
