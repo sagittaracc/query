@@ -93,6 +93,8 @@ class Query
             foreach ($clone->select as $column => $option) {
                 if ($option instanceof Closure) {
                     $model->{$column} = $option($model, $this, $data);
+                    // Lazy loading
+                    // $model->{"__$column"} = fn() => $option($model, $this, $data);
                 }
             }
         }
@@ -115,7 +117,7 @@ class Query
 
         $this->dumpQueries();
 
-        $data = $this->query->fetchAll(\PDO::FETCH_CLASS);
+        $data = $this->query->fetchAll(\PDO::FETCH_CLASS, Model::class);
 
         // Методы index, column, ... выполняем в порядке их установки в запросе
         foreach ($this->queue as $method) {
