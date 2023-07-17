@@ -17,6 +17,7 @@ class Query
     protected $lazy;
     protected $indexClosure;
     protected $group;
+    protected $modelClass;
 
     private $queue;
 
@@ -36,14 +37,20 @@ class Query
         $this->columns([]);
         $this->load([]);
         $this->index(null);
-        $this->rawDumpQueries = [];
         $this->queue = [];
+        $this->modelClass = Model::class;
     }
 
     public function query($sql)
     {
         $this->sql = $sql;
         $this->flush();
+        return $this;
+    }
+
+    public function as($modelClass)
+    {
+        $this->modelClass = $modelClass;
         return $this;
     }
 
@@ -130,10 +137,8 @@ class Query
     {
         $this->query = $this->connection->prepare($this->sql);
         $this->query->execute($params);
-
         $this->dumpQueries();
-
-        $data = $this->query->fetchAll(\PDO::FETCH_CLASS, Model::class);
+        $data = $this->query->fetchAll(\PDO::FETCH_CLASS, $this->modelClass);
 
         // Методы index, column, ... выполняем в порядке их установки в запросе
         foreach ($this->queue as $method) {

@@ -1,10 +1,19 @@
 <?php
 
 use Sagittaracc\Container\Container;
+use Sagittaracc\Model;
 use Sagittaracc\Query;
 use Sagittaracc\Value\Any;
 
 require 'vendor/autoload.php';
+
+class User extends Model
+{
+    public function canSmoke()
+    {
+        return ($this->age > 7 ? 'Hell yeah!' : 'Hah') . "\n";
+    }
+}
 
 $container = Container::getInstance();
 $container->configure([
@@ -21,11 +30,12 @@ $db = Query::use('my-db');
 $query =
     $db
     ->query('SELECT * FROM `groups` WHERE `name` = :name')
-    ->columns([
+    ->load([
         'users' => function($group, $db) {
             return
                 $db
                 ->query('SELECT * FROM users where group_id = :id')
+                ->as(User::class)
                 ->filter([
                     'age' => new Any
                 ])
@@ -41,5 +51,7 @@ $query =
 
 $data = $query->one(['name' => 'admin']);
 
-var_dump($query->rawDumpQueries);
 print_r($data);
+print_r($query->rawDumpQueries);
+print_r($data->users[4]->canSmoke());
+print_r($query->rawDumpQueries);
