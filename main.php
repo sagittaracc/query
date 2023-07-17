@@ -21,6 +21,11 @@ $query =
     $db
     ->query('SELECT * FROM `counter`')
     ->columns([
+        'Name' => function($counter) {
+            return !empty($counter->Name) ? $counter->Name : 'not defined';
+        }
+    ])
+    ->load([
         'user' => function($counter, $db) {
             return
                 $db

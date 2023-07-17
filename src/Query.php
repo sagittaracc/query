@@ -14,6 +14,7 @@ class Query
     protected $query;
     protected $sql;
     protected $select;
+    protected $lazy;
     protected $indexClosure;
     protected $group;
 
@@ -33,6 +34,7 @@ class Query
     public function flush()
     {
         $this->columns([]);
+        $this->load([]);
         $this->index(null);
         $this->rawDumpQueries = [];
         $this->queue = [];
@@ -57,6 +59,16 @@ class Query
     {
         $this->queue[] = '_columns';
         $this->select = $select;
+        return $this;
+    }
+
+    public function load($select)
+    {
+        if (!in_array('_columns', $this->queue)) {
+            $this->queue[] = '_columns';
+        }
+
+        $this->lazy = $select;
         return $this;
     }
 
@@ -93,8 +105,12 @@ class Query
             foreach ($clone->select as $column => $option) {
                 if ($option instanceof Closure) {
                     $model->{$column} = $option($model, $this, $data);
-                    // Lazy loading
-                    // $model->{"__$column"} = fn() => $option($model, $this, $data);
+                }
+            }
+
+            foreach ($clone->lazy as $column => $option) {
+                if ($option instanceof Closure) {
+                    $model->{"__$column"} = fn() => $option($model, $this, $data);
                 }
             }
         }

@@ -22,7 +22,7 @@ $db = Query::use('my-db');
 $query =
     $db
     ->query('SELECT * FROM `groups` WHERE `name` = :name')
-    ->columns([
+    ->load([    // Lazy loading
         'users' => function($group, $db) {
             return
                 $db
