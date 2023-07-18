@@ -12,26 +12,31 @@ class Query
     /**
      * Экземпляр подключения к базе данных
      */
-    protected $connection;
+    private $connection;
     /**
      * Название используемой базы данных
      */
-    protected string $db;
+    private string $db;
     /**
      * Выполняемый SQL запрос
      */
-    protected ?string $sql;
+    private ?string $sql;
+    /**
+     * array<key => Closure>
+     */
+    private array $columns;
+    /**
+     * Тоже самое что и columns но с ленивой загрузкой
+     * array<key => Closure>
+     */
+    private array $load;
     /**
      * 
      */
-    protected $select;
-    protected $lazy;
-    protected $indexClosure;
-    protected $group;
-    protected $modelClass;
-
+    private $indexClosure;
+    private $group;
+    private $modelClass;
     private $queue;
-
     public $rawDumpQueries;
     public $data;
 
@@ -107,21 +112,31 @@ class Query
         return $this;
     }
 
-    public function columns($select)
+    public function columns($columns)
     {
         $this->queue[] = '_columns';
-        $this->select = $select;
+        $this->columns = $columns;
         return $this;
     }
 
-    public function load($select)
+    public function getColumns()
+    {
+        return $this->columns;
+    }
+
+    public function load($columns)
     {
         if (!in_array('_columns', $this->queue)) {
             $this->queue[] = '_columns';
         }
 
-        $this->lazy = $select;
+        $this->load = $columns;
         return $this;
+    }
+
+    public function getLoad()
+    {
+        return $this->load;
     }
 
     public function index(?Closure $closure, bool $group = false)
@@ -154,13 +169,13 @@ class Query
         $clone = clone $this;
 
         foreach ($data as &$model) {
-            foreach ($clone->select as $column => $option) {
+            foreach ($clone->getColumns() as $column => $option) {
                 if ($option instanceof Closure) {
                     $model->{$column} = $option($model, $this, $data);
                 }
             }
 
-            foreach ($clone->lazy as $column => $option) {
+            foreach ($clone->getLoad() as $column => $option) {
                 if ($option instanceof Closure) {
                     $model->{"__$column"} = fn() => $option($model, $this, $data);
                 }

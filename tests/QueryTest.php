@@ -15,6 +15,23 @@ final class QueryTest extends TestCase
         $this->q = Query::use();
     }
 
+    private function stubCounter()
+    {
+        return [
+            ['AI_Counter' => 1, 'Obj_Id_Counter' => 182, 'Obj_Id_User' => 266, 'Obj_Id_Tarif' => 268, 'Id_Resurs' => 1, 'Obj_Id_Home' => 264, 'HomeCounter' => 0, 'Name' => ''],
+            ['AI_Counter' => 2, 'Obj_Id_Counter' => 183, 'Obj_Id_User' => 266, 'Obj_Id_Tarif' => 268, 'Id_Resurs' => 1, 'Obj_Id_Home' => 264, 'HomeCounter' => 0, 'Name' => 'Газ'],
+            ['AI_Counter' => 3, 'Obj_Id_Counter' => 184, 'Obj_Id_User' => 266, 'Obj_Id_Tarif' => 268, 'Id_Resurs' => 1, 'Obj_Id_Home' => 264, 'HomeCounter' => 0, 'Name' => 'Вода'],
+        ];
+    }
+
+    private function stubUser()
+    {
+        return [
+            ['AI_User' => 1, 'Obj_Id_User' => 266, 'Obj_Id_Home' => 264, 'FIO' => 'Абонент 1'],
+            ['AI_User' => 2, 'Obj_Id_User' => 307, 'Obj_Id_Home' => 264, 'FIO' => 'Абонент 2'],
+        ];
+    }
+
     public function testUse(): void
     {
         $this->assertInstanceOf(Query::class, $this->q);
@@ -28,23 +45,38 @@ final class QueryTest extends TestCase
         $data =
             $this
                 ->q
-                ->data([
-                    ['id' => 0, 'key_col_1' => 'val_col_1', 'key_col_2' => 'val_col_2'],
-                    ['id' => 1, 'key_col_1' => 'val_col_1', 'key_col_2' => 'val_col_2'],
-                    ['id' => 2, 'key_col_1' => 'val_col_1', 'key_col_2' => 'val_col_2'],
-                ])
-                ->columns([
-                    'key_col_3' => fn($row) => $row->key_col_1 . ' ' . $row->key_col_2,
+                ->data($this->stubUser())
+                ->index(fn($user) => $user->Obj_Id_User)
+                ->load([
+                    'counters' => function($user, $q) {
+                        $counters =
+                            $q
+                            ->data($this->stubCounter())
+                            ->columns([
+                                'Name' => fn($counter) => !empty($counter->Name) ? $counter->Name : "#$counter->Obj_Id_Counter",
+                            ])
+                            ->group(fn($counter) => $counter->Obj_Id_User)
+                            ->all();
+                        return $counters[$user->Obj_Id_User] ?? [];
+                    }
                 ])
                 ->all();
         
-        foreach ($data as $i => $row) {
-            $this->assertInstanceOf(Model::class, $row);
-            $this->assertSame($i, $row->id);
-            $this->assertSame('val_col_1', $row->key_col_1);
-            $this->assertSame('val_col_2', $row->key_col_2);
-            $this->assertSame('val_col_1 val_col_2', $row->key_col_3);
-        }
+        $this->assertInstanceOf(Model::class, $data[266]);
+        $this->assertInstanceOf(Model::class, $data[307]);
+
+        $this->assertSame('Абонент 1', $data[266]->FIO);
+        $this->assertSame('Абонент 2', $data[307]->FIO);
+
+        $this->assertInstanceOf(Model::class, $data[266]->counters[0]);
+        $this->assertInstanceOf(Model::class, $data[266]->counters[1]);
+        $this->assertInstanceOf(Model::class, $data[266]->counters[2]);
+
+        $this->assertSame('#182', $data[266]->counters[0]->Name);
+        $this->assertSame('Газ', $data[266]->counters[1]->Name);
+        $this->assertSame('Вода', $data[266]->counters[2]->Name);
+
+        $this->assertSame([], $data[307]->counters);
     }
 
     public function tearDown(): void
