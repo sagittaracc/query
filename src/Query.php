@@ -11,18 +11,18 @@ class Query
 {
     protected $connection;
     protected $db;
-    protected $query;
     protected $sql;
+    protected $query;
     protected $select;
     protected $lazy;
     protected $indexClosure;
     protected $group;
     protected $modelClass;
-    protected $data;
 
     private $queue;
 
     public $rawDumpQueries;
+    public $data;
 
     public static function use($db = null)
     {
@@ -37,7 +37,7 @@ class Query
         return $instance;
     }
 
-    public function flush()
+    private function flush()
     {
         $this->sql = null;
         $this->columns([]);
@@ -62,10 +62,20 @@ class Query
         return $this;
     }
 
+    public function getSql()
+    {
+        return $this->sql;
+    }
+
     public function as($modelClass)
     {
         $this->modelClass = $modelClass;
         return $this;
+    }
+
+    public function getModelClass()
+    {
+        return $this->modelClass;
     }
 
     public function filter($filter)
