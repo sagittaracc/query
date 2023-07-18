@@ -157,12 +157,17 @@ class Query
         return $this;
     }
 
+    public function isGrouping()
+    {
+        return $this->grouping;
+    }
+
     private function _index($data)
     {
         $clone = clone $this;
 
         if ($clone->indexClosure instanceof Closure) {
-            $data = ArrayHelper::index($clone->indexClosure, $data, $clone->grouping);
+            $data = ArrayHelper::index($clone->indexClosure, $data, $clone->isGrouping());
         }
 
         return $data;
