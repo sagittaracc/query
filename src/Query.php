@@ -24,12 +24,16 @@ class Query
 
     public $rawDumpQueries;
 
-    public static function use($db)
+    public static function use($db = null)
     {
         $instance = new self;
         $instance->flush();
-        $instance->db = $db;
-        $instance->connection = Container::getInstance()->get("connections.$db");
+
+        if ($db !== null) {
+            $instance->db = $db;
+            $instance->connection = Container::getInstance()->get("connections.$db");
+        }
+
         return $instance;
     }
 
