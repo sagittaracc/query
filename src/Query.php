@@ -71,7 +71,7 @@ class Query
         $this->index(null);
         $this->queue = [];
         $this->data = null;
-        $this->modelClass = Model::class;
+        $this->as(Model::class);
     }
 
     public function data($data)
@@ -194,10 +194,10 @@ class Query
             ob_start();
             $query->debugDumpParams();
             $this->rawDumpQueries[] = ob_get_clean();
-            $data = $query->fetchAll(\PDO::FETCH_CLASS, $this->modelClass);
+            $data = $query->fetchAll(\PDO::FETCH_CLASS, $this->getModelClass());
         }
         else if (!is_null($this->data)) {
-            $data = ArrayHelper::serialize($this->data, $this->modelClass);
+            $data = ArrayHelper::serialize($this->data, $this->getModelClass());
         }
         else {
             $data = [];
