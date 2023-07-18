@@ -32,21 +32,23 @@ $query =
         ['Obj_Id_User' => 266, 'Name' => ''],
         ['Obj_Id_User' => 266, 'Name' => 'Бетар 2'],
     ])
-    ->as(User::class)
     ->columns([
         'Name' => function($counter) {
             return !empty($counter->Name) ? $counter->Name : 'not defined';
-        }
+        },
     ])
     ->load([
         'user' => function($counter, $db) {
             return
                 $db
-                ->query('SELECT * FROM `users` WHERE `Obj_Id_User` = :id')
-                ->one(['id' => $counter->Obj_Id_User]);
+                ->data([
+                    ['Obj_Id_User' => 266, 'FIO' => 'Абонент'],
+                ])
+                ->as(User::class)
+                ->one();
         }
     ]);
 
 $data = $query->all();
 
-print_r($data[0]->canSmoke());
+print_r($data[0]->user->canSmoke());

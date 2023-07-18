@@ -18,6 +18,7 @@ class Query
     protected $indexClosure;
     protected $group;
     protected $modelClass;
+    protected $data;
 
     private $queue;
 
@@ -34,17 +35,26 @@ class Query
 
     public function flush()
     {
+        $this->sql = null;
         $this->columns([]);
         $this->load([]);
         $this->index(null);
         $this->queue = [];
+        $this->data = null;
         $this->modelClass = Model::class;
+    }
+
+    public function data($data)
+    {
+        $this->flush();
+        $this->data = $data;
+        return $this;
     }
 
     public function query($sql)
     {
-        $this->sql = $sql;
         $this->flush();
+        $this->sql = $sql;
         return $this;
     }
 
@@ -135,10 +145,18 @@ class Query
 
     public function all($params = [])
     {
-        $this->query = $this->connection->prepare($this->sql);
-        $this->query->execute($params);
-        $this->dumpQueries();
-        $data = $this->query->fetchAll(\PDO::FETCH_CLASS, $this->modelClass);
+        if (!is_null($this->sql)) {
+            $this->query = $this->connection->prepare($this->sql);
+            $this->query->execute($params);
+            $this->dumpQueries();
+            $data = $this->query->fetchAll(\PDO::FETCH_CLASS, $this->modelClass);
+        }
+        else if (!is_null($this->data)) {
+            $data = (new Serializer)->serialize($this->data, $this->modelClass);
+        }
+        else {
+            $data = [];
+        }
 
         // Методы index, column, ... выполняем в порядке их установки в запросе
         foreach ($this->queue as $method) {
