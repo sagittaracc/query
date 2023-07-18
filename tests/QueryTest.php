@@ -27,7 +27,7 @@ final class QueryTest extends TestCase
         $this->assertInstanceOf(Query::class, $this->q);
         $this->assertNull($this->q->getSql());
         $this->assertNull($this->q->data);
-        $this->assertSame(Model::class, $this->q->getModelClass());
+        $this->assertSame(Model::class, $this->q->getClassObject());
     }
 
     public function testColumns(): void

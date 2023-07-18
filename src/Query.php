@@ -7,6 +7,10 @@ use sagittaracc\ArrayHelper;
 use Sagittaracc\Container\Container;
 use Sagittaracc\Value\Any;
 
+/**
+ * В жопу ORM
+ * @author Yuriy Arutyunyan <sagittaracc@gmail.com>
+ */
 class Query
 {
     /**
@@ -35,10 +39,13 @@ class Query
      */
     private $index;
     /**
-     * Нужно группировать данные а не индексировать
+     * @var bool нужно группировать данные а не индексировать
      */
     private bool $grouping;
-    private $modelClass;
+    /**
+     * @var string класс в который в итоге будет сериализоваться объекты result set
+     */
+    private string $classObject;
     private $queue;
 
     public $rawDumpQueries;
@@ -97,15 +104,15 @@ class Query
         return $this->sql;
     }
 
-    public function as($modelClass)
+    public function as($classObject)
     {
-        $this->modelClass = $modelClass;
+        $this->classObject = $classObject;
         return $this;
     }
 
-    public function getModelClass()
+    public function getClassObject()
     {
-        return $this->modelClass;
+        return $this->classObject;
     }
 
     public function filter($filter)
@@ -208,10 +215,10 @@ class Query
             ob_start();
             $query->debugDumpParams();
             $this->rawDumpQueries[] = ob_get_clean();
-            $data = $query->fetchAll(\PDO::FETCH_CLASS, $this->getModelClass());
+            $data = $query->fetchAll(\PDO::FETCH_CLASS, $this->getClassObject());
         }
         else if (!is_null($this->data)) {
-            $data = ArrayHelper::serialize($this->data, $this->getModelClass());
+            $data = ArrayHelper::serialize($this->data, $this->getClassObject());
         }
         else {
             $data = [];
