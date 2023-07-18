@@ -152,7 +152,7 @@ class Query
             $data = $this->query->fetchAll(\PDO::FETCH_CLASS, $this->modelClass);
         }
         else if (!is_null($this->data)) {
-            $data = (new Serializer)->serialize($this->data, $this->modelClass);
+            $data = ArrayHelper::serialize($this->data, $this->modelClass);
         }
         else {
             $data = [];

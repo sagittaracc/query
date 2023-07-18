@@ -32,7 +32,6 @@ $query =
         ['Obj_Id_User' => 266, 'Name' => ''],
         ['Obj_Id_User' => 266, 'Name' => 'Бетар 2'],
     ])
-    ->as(User::class)
     ->columns([
         'Name' => function($counter) {
             return !empty($counter->Name) ? $counter->Name : 'not defined';
@@ -43,10 +42,11 @@ $query =
             return
                 $db
                 ->query('SELECT * FROM `users` WHERE `Obj_Id_User` = :id')
+                ->as(User::class)
                 ->one(['id' => $counter->Obj_Id_User]);
         }
     ]);
 
 $data = $query->all();
 
-print_r($data[0]->canSmoke());
+print_r($data[0]->user->canSmoke());

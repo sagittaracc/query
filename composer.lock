@@ -4,25 +4,26 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "696dcdca8d58a480ecbd9a2496d05dd4",
+    "content-hash": "9b991aa68f28e3370692f7e43b339c20",
     "packages": [
         {
             "name": "sagittaracc/arrays",
-            "version": "v0.1.5",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sagittaracc/arrays.git",
-                "reference": "421d53a0aaede87e6818730ee1d41179df621e52"
+                "reference": "7e9605c008e20d79ac4ae8b1dce666838d1cb631"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sagittaracc/arrays/zipball/421d53a0aaede87e6818730ee1d41179df621e52",
-                "reference": "421d53a0aaede87e6818730ee1d41179df621e52",
+                "url": "https://api.github.com/repos/sagittaracc/arrays/zipball/7e9605c008e20d79ac4ae8b1dce666838d1cb631",
+                "reference": "7e9605c008e20d79ac4ae8b1dce666838d1cb631",
                 "shasum": ""
             },
             "require-dev": {
                 "phpunit/phpunit": "^9"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -32,9 +33,9 @@
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/sagittaracc/arrays/issues",
-                "source": "https://github.com/sagittaracc/arrays/tree/v0.1.5"
+                "source": "https://github.com/sagittaracc/arrays/tree/master"
             },
-            "time": "2023-07-15T19:37:47+00:00"
+            "time": "2023-07-18T08:16:39+00:00"
         },
         {
             "name": "sagittaracc/container",
@@ -75,7 +76,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "sagittaracc/container": 20
+        "sagittaracc/container": 20,
+        "sagittaracc/arrays": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
