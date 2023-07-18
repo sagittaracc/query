@@ -31,9 +31,9 @@ class Query
      */
     private array $load;
     /**
-     * ...
+     * @var Closure функция индексации данных
      */
-    private $indexClosure;
+    private $index;
     /**
      * Нужно группировать данные а не индексировать
      */
@@ -146,9 +146,14 @@ class Query
     public function index(?Closure $closure, bool $grouping = false)
     {
         $this->queue[] = '_index';
-        $this->indexClosure = $closure;
+        $this->index = $closure;
         $this->grouping = $grouping;
         return $this;
+    }
+
+    public function getIndex(): Closure
+    {
+        return $this->index;
     }
 
     public function group(Closure $closure)
@@ -166,8 +171,8 @@ class Query
     {
         $clone = clone $this;
 
-        if ($clone->indexClosure instanceof Closure) {
-            $data = ArrayHelper::index($clone->indexClosure, $data, $clone->isGrouping());
+        if ($clone->getIndex() instanceof Closure) {
+            $data = ArrayHelper::index($clone->getIndex(), $data, $clone->isGrouping());
         }
 
         return $data;
