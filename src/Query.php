@@ -31,12 +31,16 @@ class Query
      */
     private array $load;
     /**
-     * 
+     * ...
      */
     private $indexClosure;
-    private $group;
+    /**
+     * Нужно группировать данные а не индексировать
+     */
+    private bool $grouping;
     private $modelClass;
     private $queue;
+
     public $rawDumpQueries;
     public $data;
 
@@ -139,11 +143,11 @@ class Query
         return $this->load;
     }
 
-    public function index(?Closure $closure, bool $group = false)
+    public function index(?Closure $closure, bool $grouping = false)
     {
         $this->queue[] = '_index';
         $this->indexClosure = $closure;
-        $this->group = $group;
+        $this->grouping = $grouping;
         return $this;
     }
 
@@ -158,7 +162,7 @@ class Query
         $clone = clone $this;
 
         if ($clone->indexClosure instanceof Closure) {
-            $data = ArrayHelper::index($clone->indexClosure, $data, $clone->group);
+            $data = ArrayHelper::index($clone->indexClosure, $data, $clone->grouping);
         }
 
         return $data;
