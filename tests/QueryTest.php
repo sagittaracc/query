@@ -6,31 +6,20 @@ use PHPUnit\Framework\TestCase;
 use Sagittaracc\Model;
 use Sagittaracc\models\User;
 use Sagittaracc\Query;
+use Sagittaracc\stubs\Counters;
+use Sagittaracc\stubs\Users;
 
 final class QueryTest extends TestCase
 {
     private $q;
+    private $stubUsers;
+    private $stubCounters;
 
     public function setUp(): void
     {
         $this->q = Query::use();
-    }
-
-    private function stubCounter()
-    {
-        return [
-            ['AI_Counter' => 1, 'Obj_Id_Counter' => 182, 'Obj_Id_User' => 266, 'Obj_Id_Tarif' => 268, 'Id_Resurs' => 1, 'Obj_Id_Home' => 264, 'HomeCounter' => 0, 'Name' => ''],
-            ['AI_Counter' => 2, 'Obj_Id_Counter' => 183, 'Obj_Id_User' => 266, 'Obj_Id_Tarif' => 268, 'Id_Resurs' => 1, 'Obj_Id_Home' => 264, 'HomeCounter' => 0, 'Name' => 'Газ'],
-            ['AI_Counter' => 3, 'Obj_Id_Counter' => 184, 'Obj_Id_User' => 266, 'Obj_Id_Tarif' => 268, 'Id_Resurs' => 1, 'Obj_Id_Home' => 264, 'HomeCounter' => 0, 'Name' => 'Вода'],
-        ];
-    }
-
-    private function stubUser()
-    {
-        return [
-            ['AI_User' => 1, 'Obj_Id_User' => 266, 'Obj_Id_Home' => 264, 'FIO' => 'Абонент 1', 'Balance' => 0],
-            ['AI_User' => 2, 'Obj_Id_User' => 307, 'Obj_Id_Home' => 264, 'FIO' => 'Абонент 2', 'Balance' => -1000],
-        ];
+        $this->stubUsers = (new Users)->all();
+        $this->stubCounters = (new Counters)->all();
     }
 
     public function testUse(): void
@@ -46,14 +35,14 @@ final class QueryTest extends TestCase
         $data =
             $this
                 ->q
-                ->data($this->stubUser())
+                ->data($this->stubUsers)
                 ->as(User::class)
                 ->index(fn($user) => $user->Obj_Id_User)
                 ->load([
                     'counters' => function($user, $q) {
                         $counters =
                             $q
-                            ->data($this->stubCounter())
+                            ->data($this->stubCounters)
                             ->columns([
                                 'Name' => fn($counter) => !empty($counter->Name) ? $counter->Name : "#$counter->Obj_Id_Counter",
                             ])
@@ -66,19 +55,19 @@ final class QueryTest extends TestCase
         
         $this->assertInstanceOf(User::class, $data[266]);
         $this->assertInstanceOf(User::class, $data[307]);
-        $this->assertFalse($data[266]->hasDebt());
-        $this->assertTrue($data[307]->hasDebt());
+        $this->assertSame($this->stubUsers[0]['Balance'] < 0, $data[266]->hasDebt());
+        $this->assertSame($this->stubUsers[1]['Balance'] < 0, $data[307]->hasDebt());
 
-        $this->assertSame('Абонент 1', $data[266]->FIO);
-        $this->assertSame('Абонент 2', $data[307]->FIO);
+        $this->assertSame($this->stubUsers[0]['FIO'], $data[266]->FIO);
+        $this->assertSame($this->stubUsers[1]['FIO'], $data[307]->FIO);
 
         $this->assertInstanceOf(Model::class, $data[266]->counters[0]);
         $this->assertInstanceOf(Model::class, $data[266]->counters[1]);
         $this->assertInstanceOf(Model::class, $data[266]->counters[2]);
 
-        $this->assertSame('#182', $data[266]->counters[0]->Name);
-        $this->assertSame('Газ', $data[266]->counters[1]->Name);
-        $this->assertSame('Вода', $data[266]->counters[2]->Name);
+        $this->assertSame('#'.$this->stubCounters[0]['Obj_Id_Counter'], $data[266]->counters[0]->Name);
+        $this->assertSame($this->stubCounters[1]['Name'], $data[266]->counters[1]->Name);
+        $this->assertSame($this->stubCounters[2]['Name'], $data[266]->counters[2]->Name);
 
         $this->assertSame([], $data[307]->counters);
     }

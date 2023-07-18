@@ -6,7 +6,8 @@
     "autoload": {
         "psr-4": {
             "Sagittaracc\\": "src/",
-            "Sagittaracc\\models\\": "tests/models/"
+            "Sagittaracc\\models\\": "tests/models/",
+            "Sagittaracc\\stubs\\": "tests/stubs/"
         }
     },
     "require-dev": {
