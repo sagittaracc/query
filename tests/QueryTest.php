@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use Sagittaracc\Model;
+use Sagittaracc\models\User;
 use Sagittaracc\Query;
 
 final class QueryTest extends TestCase
@@ -27,8 +28,8 @@ final class QueryTest extends TestCase
     private function stubUser()
     {
         return [
-            ['AI_User' => 1, 'Obj_Id_User' => 266, 'Obj_Id_Home' => 264, 'FIO' => 'Абонент 1'],
-            ['AI_User' => 2, 'Obj_Id_User' => 307, 'Obj_Id_Home' => 264, 'FIO' => 'Абонент 2'],
+            ['AI_User' => 1, 'Obj_Id_User' => 266, 'Obj_Id_Home' => 264, 'FIO' => 'Абонент 1', 'Balance' => 0],
+            ['AI_User' => 2, 'Obj_Id_User' => 307, 'Obj_Id_Home' => 264, 'FIO' => 'Абонент 2', 'Balance' => -1000],
         ];
     }
 
@@ -46,6 +47,7 @@ final class QueryTest extends TestCase
             $this
                 ->q
                 ->data($this->stubUser())
+                ->as(User::class)
                 ->index(fn($user) => $user->Obj_Id_User)
                 ->load([
                     'counters' => function($user, $q) {
@@ -62,8 +64,10 @@ final class QueryTest extends TestCase
                 ])
                 ->all();
         
-        $this->assertInstanceOf(Model::class, $data[266]);
-        $this->assertInstanceOf(Model::class, $data[307]);
+        $this->assertInstanceOf(User::class, $data[266]);
+        $this->assertInstanceOf(User::class, $data[307]);
+        $this->assertFalse($data[266]->hasDebt());
+        $this->assertTrue($data[307]->hasDebt());
 
         $this->assertSame('Абонент 1', $data[266]->FIO);
         $this->assertSame('Абонент 2', $data[307]->FIO);

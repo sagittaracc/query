@@ -5,7 +5,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Sagittaracc\\": "src/"
+            "Sagittaracc\\": "src/",
+            "Sagittaracc\\models\\": "tests/models/"
         }
     },
     "require-dev": {
