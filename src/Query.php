@@ -9,10 +9,21 @@ use Sagittaracc\Value\Any;
 
 class Query
 {
+    /**
+     * Экземпляр подключения к базе данных
+     */
     protected $connection;
-    protected $db;
-    protected $sql;
-    protected $query;
+    /**
+     * Название используемой базы данных
+     */
+    protected string $db;
+    /**
+     * Выполняемый SQL запрос
+     */
+    protected ?string $sql;
+    /**
+     * 
+     */
     protected $select;
     protected $lazy;
     protected $indexClosure;
@@ -35,6 +46,16 @@ class Query
         }
 
         return $instance;
+    }
+
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    public function getDb()
+    {
+        return $this->db;
     }
 
     private function flush()
@@ -150,20 +171,15 @@ class Query
         return $data;
     }
 
-    private function dumpQueries()
-    {
-        ob_start();
-        $this->query->debugDumpParams();
-        $this->rawDumpQueries[] = ob_get_clean();
-    }
-
     public function all($params = [])
     {
-        if (!is_null($this->sql)) {
-            $this->query = $this->connection->prepare($this->sql);
-            $this->query->execute($params);
-            $this->dumpQueries();
-            $data = $this->query->fetchAll(\PDO::FETCH_CLASS, $this->modelClass);
+        if (!is_null($this->getSql())) {
+            $query = $this->getConnection()->prepare($this->getSql());
+            $query->execute($params);
+            ob_start();
+            $query->debugDumpParams();
+            $this->rawDumpQueries[] = ob_get_clean();
+            $data = $query->fetchAll(\PDO::FETCH_CLASS, $this->modelClass);
         }
         else if (!is_null($this->data)) {
             $data = ArrayHelper::serialize($this->data, $this->modelClass);
