@@ -1,8 +1,8 @@
 {
     "name": "sagittaracc/query",
     "require": {
-        "sagittaracc/container": "@dev",
-        "sagittaracc/arrays": "@dev"
+        "sagittaracc/container": "1.0",
+        "sagittaracc/arrays": "0.1.6"
     },
     "autoload": {
         "psr-4": {

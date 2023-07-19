@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1a4acf9e6a0422e1c9f6505b3458c67e",
+    "content-hash": "1d537b76604adf4363b28396c869a334",
     "packages": [
         {
             "name": "sagittaracc/arrays",
-            "version": "dev-master",
+            "version": "v0.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sagittaracc/arrays.git",
@@ -23,7 +23,6 @@
             "require-dev": {
                 "phpunit/phpunit": "^9"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -33,13 +32,13 @@
             "notification-url": "https://packagist.org/downloads/",
             "support": {
                 "issues": "https://github.com/sagittaracc/arrays/issues",
-                "source": "https://github.com/sagittaracc/arrays/tree/master"
+                "source": "https://github.com/sagittaracc/arrays/tree/v0.1.6"
             },
             "time": "2023-07-18T08:16:39+00:00"
         },
         {
             "name": "sagittaracc/container",
-            "version": "dev-main",
+            "version": "v1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sagittaracc/container.git",
@@ -51,7 +50,6 @@
                 "reference": "d6ed58e72e8de3ddeaba4bc8b3da9fc606a2466c",
                 "shasum": ""
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -67,7 +65,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sagittaracc/container/issues",
-                "source": "https://github.com/sagittaracc/container/tree/main"
+                "source": "https://github.com/sagittaracc/container/tree/v1.0"
             },
             "time": "2023-07-14T18:52:07+00:00"
         }
@@ -1684,10 +1682,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "sagittaracc/container": 20,
-        "sagittaracc/arrays": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
