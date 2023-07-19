@@ -8,7 +8,7 @@ use Sagittaracc\Container\Container;
 use Sagittaracc\Value\Any;
 
 /**
- * В жопу ORM
+ * Fuck ORM
  * @author Yuriy Arutyunyan <sagittaracc@gmail.com>
  */
 class Query
@@ -26,29 +26,20 @@ class Query
      */
     private ?string $sql;
     /**
-     * array<key => Closure>
-     */
-    private array $columns;
-    /**
-     * Тоже самое что и columns но с ленивой загрузкой
-     * array<key => Closure>
-     */
-    private array $load;
-    /**
-     * @var Closure функция индексации данных
-     */
-    private $index;
-    /**
-     * @var bool нужно группировать данные а не индексировать
-     */
-    private bool $grouping;
-    /**
      * @var string класс в который в итоге будет сериализоваться объекты result set
      */
     private string $classObject;
-    private $queue;
-
-    public $rawDumpQueries;
+    /**
+     * @var array
+     */
+    private array $modifiers;
+    /**
+     * @var array лог выполненных запросов
+     */
+    public array $log;
+    /**
+     * @var mixed
+     */
     public $data;
 
     public static function use($db = null)
@@ -80,7 +71,7 @@ class Query
         $this->columns([]);
         $this->load([]);
         $this->index(null);
-        $this->queue = [];
+        $this->modifiers = [];
         $this->data = null;
         $this->as(Model::class);
     }
@@ -120,91 +111,63 @@ class Query
         foreach ($filter as $param => $value) {
             if ($value instanceof Any) continue;
         }
+
         return $this;
     }
 
     public function columns($columns)
     {
-        $this->queue[] = '_columns';
-        $this->columns = $columns;
-        return $this;
-    }
+        $this->modifiers[] = function($data) use ($columns) {
+            foreach ($data as &$model) {
+                foreach ($columns as $column => $option) {
+                    if ($option instanceof Closure) {
+                        $model->{$column} = $option($model, $this, $data);
+                    }
+                }
+            }
+            unset($model);
+    
+            return $data;
+        };
 
-    public function getColumns()
-    {
-        return $this->columns;
+        return $this;
     }
 
     public function load($columns)
     {
-        if (!in_array('_columns', $this->queue)) {
-            $this->queue[] = '_columns';
-        }
+        $this->modifiers[] = function($data) use ($columns) {
+            foreach ($data as &$model) {
+                foreach ($columns as $column => $option) {
+                    if ($option instanceof Closure) {
+                        $model->{"__$column"} = fn() => $option($model, $this, $data);
+                    }
+                }
+            }
+            unset($model);
+    
+            return $data;
+        };
 
-        $this->load = $columns;
         return $this;
-    }
-
-    public function getLoad()
-    {
-        return $this->load;
     }
 
     public function index(?Closure $closure, bool $grouping = false)
     {
-        $this->queue[] = '_index';
-        $this->index = $closure;
-        $this->grouping = $grouping;
-        return $this;
-    }
+        $this->modifiers[] = function ($data) use ($closure, $grouping) {
+            if ($closure instanceof Closure) {
+                $data = ArrayHelper::index($closure, $data, $grouping);
+            }
+    
+            return $data;
+        };
 
-    public function getIndex(): Closure
-    {
-        return $this->index;
+        return $this;
     }
 
     public function group(Closure $closure)
     {
         $this->index($closure, true);
         return $this;
-    }
-
-    public function isGrouping()
-    {
-        return $this->grouping;
-    }
-
-    private function _index($data)
-    {
-        $clone = clone $this;
-
-        if ($clone->getIndex() instanceof Closure) {
-            $data = ArrayHelper::index($clone->getIndex(), $data, $clone->isGrouping());
-        }
-
-        return $data;
-    }
-
-    private function _columns($data)
-    {
-        $clone = clone $this;
-
-        foreach ($data as &$model) {
-            foreach ($clone->getColumns() as $column => $option) {
-                if ($option instanceof Closure) {
-                    $model->{$column} = $option($model, $this, $data);
-                }
-            }
-
-            foreach ($clone->getLoad() as $column => $option) {
-                if ($option instanceof Closure) {
-                    $model->{"__$column"} = fn() => $option($model, $this, $data);
-                }
-            }
-        }
-        unset($model);
-
-        return $data;
     }
 
     public function all($params = [])
@@ -214,7 +177,7 @@ class Query
             $query->execute($params);
             ob_start();
             $query->debugDumpParams();
-            $this->rawDumpQueries[] = ob_get_clean();
+            $this->log[] = ob_get_clean();
             $data = $query->fetchAll(\PDO::FETCH_CLASS, $this->getClassObject());
         }
         else if (!is_null($this->data)) {
@@ -224,11 +187,8 @@ class Query
             $data = [];
         }
 
-        // Методы index, column, ... выполняем в порядке их установки в запросе
-        foreach ($this->queue as $method) {
-            if (method_exists($this, $method)) {
-                $data = $this->$method($data);
-            }
+        foreach ($this->modifiers as $method) {
+            $data = $method($data);
         }
 
         return $data;
