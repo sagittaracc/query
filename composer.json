@@ -1,4 +1,5 @@
 {
+    "name": "sagittaracc/query",
     "require": {
         "sagittaracc/container": "@dev",
         "sagittaracc/arrays": "@dev"
