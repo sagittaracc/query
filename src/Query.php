@@ -170,15 +170,20 @@ class Query
         return $this;
     }
 
+    private function debug($query)
+    {
+        ob_start();
+        $query->debugDumpParams();
+        $this->log[] = ob_get_clean();
+    }
+
     public function all($params = [])
     {
         if (!is_null($this->getSql())) {
             $query = $this->getConnection()->prepare($this->getSql());
             $query->execute($params);
-            ob_start();
-            $query->debugDumpParams();
-            $this->log[] = ob_get_clean();
             $data = $query->fetchAll(\PDO::FETCH_CLASS, $this->getClassObject());
+            $this->debug($query);
         }
         else if (!is_null($this->data)) {
             $data = ArrayHelper::serialize($this->data, $this->getClassObject());
